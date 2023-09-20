@@ -1,0 +1,71 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+public class CosineSimilarity {
+
+    public static void main(String[] args) {
+        String file1 = "file1.txt";
+        String file2 = "file2.txt";
+        String outputFile = "output.txt";
+        try {
+            String text1 = readFile(file1);
+            String text2 = readFile(file2);
+            double similarity = cosineSimilarity(text1, text2);
+            writeToFile(outputFile, "The cosine similarity between the two files is: " + similarity);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static String readFile(String fileName) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(fileName));
+        StringBuilder stringBuilder = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            stringBuilder.append(line);
+        }
+        reader.close();
+        return stringBuilder.toString();
+    }
+
+    private static void writeToFile(String fileName, String content) throws IOException {
+        FileWriter writer = new FileWriter(fileName);
+        writer.write(content);
+        writer.close();
+    }
+
+    private static double cosineSimilarity(String text1, String text2) {
+        Map<String, Integer> wordFreq1 = getWordFrequency(text1);
+        Map<String, Integer> wordFreq2 = getWordFrequency(text2);
+        double dotProduct = 0.0;
+        double magnitude1 = 0.0;
+        double magnitude2 = 0.0;
+        for (String word : wordFreq1.keySet()) {
+            if (wordFreq2.containsKey(word)) {
+                dotProduct += wordFreq1.get(word) * wordFreq2.get(word);
+            }
+            magnitude1 += Math.pow(wordFreq1.get(word), 2);
+        }
+        for (String word : wordFreq2.keySet()) {
+            magnitude2 += Math.pow(wordFreq2.get(word), 2);
+        }
+        return dotProduct / (Math.sqrt(magnitude1) * Math.sqrt(magnitude2));
+    }
+
+    private static Map<String, Integer> getWordFrequency(String text) {
+        Map<String, Integer> wordFreq = new HashMap<>();
+        String[] words = text.toLowerCase().replaceAll("[^a-z ]", "").split("\\s+");
+        for (String word : words) {
+            if (wordFreq.containsKey(word)) {
+                wordFreq.put(word, wordFreq.get(word) + 1);
+            } else {
+                wordFreq.put(word, 1);
+            }
+        }
+        return wordFreq;
+    }
+}
